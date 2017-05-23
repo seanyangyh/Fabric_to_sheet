@@ -74,7 +74,7 @@ PlatformName = User_Input.PlatformName
 
 class GithubLogin(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Firefox(executable_path='/Users/seanyang/Downloads/geckodriver')
+        self.driver = webdriver.Firefox(executable_path='geckodriver')
         self.driver.implicitly_wait(30)
         self.base_url = "https://www.fabric.io"
         self.verificationErrors = []

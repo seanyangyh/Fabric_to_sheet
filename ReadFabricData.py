@@ -17,6 +17,7 @@ import sys
 from getpass import getpass
 import User_Input
 from collections import defaultdict
+from pyvirtualdisplay import Display
 
 fabirc_user = os.getenv('FABIRCUSER')
 fabirc_password = os.getenv('FABIRCPASSWORD')
@@ -74,6 +75,8 @@ PlatformName = User_Input.PlatformName
 
 class GithubLogin(unittest.TestCase):
     def setUp(self):
+        self.display = Display(visible=0, size=(800,600))
+        self.display.start()
         self.driver = webdriver.Firefox(executable_path='./geckodriver')
         self.driver.implicitly_wait(30)
         self.base_url = "https://www.fabric.io"
@@ -377,6 +380,7 @@ class GithubLogin(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+        self.display.stop()
 
 if __name__ == "__main__":
     unittest.main()

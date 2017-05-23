@@ -74,9 +74,9 @@ def get_parameter(para):
 def user_input_data(u_input):
     config = get_parameter(u_input)
     print(config)
-    file = open(str(PATH('./User_Input.py')), "w")
-    file.close()
-    file = open(str(PATH('./User_Input.py')), "a")
+    # file = open(str(PATH('./User_Input.py')), "w")
+    # file.close()
+    file = open('./User_Input.py', "a")
     file.write('PlatformName = ' + '\'' + config['plat'] + '\'' + '\n')
     file.write('Top_build = ' + str(config['top']) + '\n')
     file.write('Version = ' + str(config['ver']) + '\n')

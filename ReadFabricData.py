@@ -19,8 +19,8 @@ import User_Input
 from collections import defaultdict
 from pyvirtualdisplay import Display
 
-fabirc_user = os.getenv('FABIRCUSER')
-fabirc_password = os.getenv('FABIRCPASSWORD')
+fabirc_user = os.getenv('FABRICUSER')
+fabirc_password = os.getenv('FABRICPASSWORD')
 
 
 github_account = fabirc_user

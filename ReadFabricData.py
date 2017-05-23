@@ -25,7 +25,7 @@ fabirc_password = os.getenv('FABIRCPASSWORD')
 
 github_account = fabirc_user
 github_passwd = fabirc_password
-
+print(github_account)
 
 '''原始存放的資料'''
 Crash = []

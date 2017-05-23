@@ -12,6 +12,11 @@ export PATH
 '''
 
 import sys
+import os
+
+
+def PATH(p):
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), p))
 
 
 iOS = {"default_status": "Open", "default_owner": "Keith", "spreadsheet_id": "1ex2ovtXCVkZWuyqZi7awUYYxpK-uxioS-rOdyI6N_8E", "sheet_id_all": "1927443904", "sheet_id_summary": "670362750"}
@@ -69,9 +74,9 @@ def get_parameter(para):
 def user_input_data(u_input):
     config = get_parameter(u_input)
     print(config)
-    file = open('./User_Input.py', "w")
+    file = open(str(PATH('./User_Input.py')), "w")
     file.close()
-    file = open('./User_Input.py', "a")
+    file = open(str(PATH('./User_Input.py')), "a")
     file.write('PlatformName = ' + '\'' + config['plat'] + '\'' + '\n')
     file.write('Top_build = ' + str(config['top']) + '\n')
     file.write('Version = ' + str(config['ver']) + '\n')

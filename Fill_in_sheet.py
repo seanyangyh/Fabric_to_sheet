@@ -68,11 +68,18 @@ def fabric_crash_rate_uploader(data, date, spreadsheet_id, sheet_range, service)
     # clear data of Summary!A2:E first
     request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=sheet_range, body={}).execute()
     print(request)
-    for i in range(0, len(User_Input.Version)+1, 1):
+    for i in range(0, len(User_Input.Version), 1):
         crash_uv = data[User_Input.Version[i]]['CRASH-FREE USERS']
         crash_pv = data[User_Input.Version[i]]['CRASH-FREE SESSIONS']
         append_sheet = sheet_summary_append_handler(date, User_Input.Version[i], crash_uv, crash_pv, spreadsheet_id, sheet_range, service)
         print(append_sheet)
+
+    # append All Versions data
+    crash_uv = data['All Version']['CRASH-FREE USERS']
+    crash_pv = data['All Version']['CRASH-FREE SESSIONS']
+    append_sheet = sheet_summary_append_handler(date, 'All Versions', crash_uv, crash_pv, spreadsheet_id,
+                                                sheet_range, service)
+    print(append_sheet)
 
 
 def sheet_summary_append_handler(date, ver, crash_uv, crash_pv, spreadsheet_id, sheet_range, service):

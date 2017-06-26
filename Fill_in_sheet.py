@@ -130,7 +130,7 @@ def fabric_crashlytics_uploader(duplicate_list, data, spreadsheet_id, sheet_rang
             num = data['data'][i]['IssueNumber']
             url = data['data'][i]['URL']
             crash_count = data['data'][i]['Crash'] + " / " + data['data'][i]['User']
-            title = data['data'][i]['IssutTitle']
+            title = data['data'][i]['IssueTitle']
             sub_title = data['data'][i]['IssueSubtitle']
             append_sheet = sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, spreadsheet_id, sheet_range, service)
             print(append_sheet)

@@ -361,7 +361,7 @@ class GithubLogin(unittest.TestCase):
         self.Platform(PlatformName)  # Sean
         self.ClickCarshlytics()
         self.EnterVserion(Top_build)  # Sean
-        self.ClearSelectIcon()
+        # self.ClearSelectIcon()
         self.SelectAll()
         self.ReadAllUserSessions()
         self.MoveWeb()

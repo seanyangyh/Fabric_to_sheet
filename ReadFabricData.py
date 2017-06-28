@@ -73,6 +73,20 @@ Top_build = User_Input.Top_build
 SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
+
+fabricUrl = "https://fabric.io"
+Crashlytics = ''
+
+'''
+
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=top-builds
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=6.2.20.29
+
+/conew4/ios/apps/com.yunfang.photogrid/issues
+
+'''
+
+
 class GithubLogin(unittest.TestCase):
     def setUp(self):
         self.display = Display(visible=0, size=(800,600))
@@ -100,6 +114,14 @@ class GithubLogin(unittest.TestCase):
 
         self.driver.find_element_by_css_selector(".crashlytics i").click()
         time.sleep(5)
+
+    def GetCarshlyticsURL(self):
+
+        URL = self.driver.find_elements_by_css_selector(".flex-1 .products-wrapper .crashlytics")
+        for i in URL:
+            print("get CarshlyticsURL")
+            Crashlytics = i.get_attribute("href")
+            print(Crashlytics)
 
 
     def EnterVserion(self,Version):
@@ -317,36 +339,36 @@ class GithubLogin(unittest.TestCase):
         print("*"*10)
         print("請查看" + FileName)
 
-    def test_Read_Fabirc(self):
-        print('Top build version query raw data')
-
-        driver = self.driver
-        driver.get(self.base_url + "/login")
-
-        driver.find_element_by_id("email").clear()
-        driver.find_element_by_id("email").send_keys(github_account)
-        driver.find_element_by_id("password").clear()
-        driver.find_element_by_id("password").send_keys(github_passwd)
-        driver.find_element_by_class_name("sign-in").click()
-        time.sleep(5)
-
-        # iOS or Android
-        self.Platform(PlatformName)  # Sean
-        self.ClickCarshlytics()
-        self.EnterVserion(Top_build)  # Sean
-        self.ClearSelectIcon()
-        self.SelectAll()
-        self.ReadAllUserSessions()
-        self.MoveWeb()
-        self.ReadUrl()
-        self.ReadCrashNumber()
-        self.ReadUserNumber()
-        self.ReadVersionNumber()
-        self.ReadIssueNumber()
-        self.ReadIssueTitle()
-        self.ReadIssueSubtitle()
-        self.ReadAllNumber()
-        self.ListToJsonFile('Top_build_Fabric.json')
+    # def test_Read_Fabirc(self):
+    #     print('Top build version query raw data')
+    #
+    #     driver = self.driver
+    #     driver.get(self.base_url + "/login")
+    #
+    #     driver.find_element_by_id("email").clear()
+    #     driver.find_element_by_id("email").send_keys(github_account)
+    #     driver.find_element_by_id("password").clear()
+    #     driver.find_element_by_id("password").send_keys(github_passwd)
+    #     driver.find_element_by_class_name("sign-in").click()
+    #     time.sleep(5)
+    #
+    #     # iOS or Android
+    #     self.Platform(PlatformName)  # Sean
+    #     self.ClickCarshlytics()
+    #     self.EnterVserion(Top_build)  # Sean
+    #     self.ClearSelectIcon()
+    #     self.SelectAll()
+    #     self.ReadAllUserSessions()
+    #     self.MoveWeb()
+    #     self.ReadUrl()
+    #     self.ReadCrashNumber()
+    #     self.ReadUserNumber()
+    #     self.ReadVersionNumber()
+    #     self.ReadIssueNumber()
+    #     self.ReadIssueTitle()
+    #     self.ReadIssueSubtitle()
+    #     self.ReadAllNumber()
+    #     self.ListToJsonFile('Top_build_Fabric.json')
 
     def test_Carsh_Top(self):
         print('Get crash-free session only')
@@ -361,6 +383,7 @@ class GithubLogin(unittest.TestCase):
         driver.find_element_by_class_name("sign-in").click()
         time.sleep(5)
         self.Platform(PlatformName)  # Sean
+        self.GetCarshlyticsURL()
         self.ClickCarshlytics()
 
         for i in range(len(SelectVersion)):

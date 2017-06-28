@@ -344,36 +344,36 @@ class GithubLogin(unittest.TestCase):
         print("*"*10)
         print("請查看" + FileName)
 
-    # def test_Read_Fabirc(self):
-    #     print('Top build version query raw data')
-    #
-    #     driver = self.driver
-    #     driver.get(self.base_url + "/login")
-    #
-    #     driver.find_element_by_id("email").clear()
-    #     driver.find_element_by_id("email").send_keys(github_account)
-    #     driver.find_element_by_id("password").clear()
-    #     driver.find_element_by_id("password").send_keys(github_passwd)
-    #     driver.find_element_by_class_name("sign-in").click()
-    #     time.sleep(5)
-    #
-    #     # iOS or Android
-    #     self.Platform(PlatformName)  # Sean
-    #     self.ClickCarshlytics()
-    #     self.EnterVserion(Top_build)  # Sean
-    #     self.ClearSelectIcon()
-    #     self.SelectAll()
-    #     self.ReadAllUserSessions()
-    #     self.MoveWeb()
-    #     self.ReadUrl()
-    #     self.ReadCrashNumber()
-    #     self.ReadUserNumber()
-    #     self.ReadVersionNumber()
-    #     self.ReadIssueNumber()
-    #     self.ReadIssueTitle()
-    #     self.ReadIssueSubtitle()
-    #     self.ReadAllNumber()
-    #     self.ListToJsonFile('Top_build_Fabric.json')
+    def test_Read_Fabirc(self):
+        print('Top build version query raw data')
+
+        driver = self.driver
+        driver.get(self.base_url + "/login")
+
+        driver.find_element_by_id("email").clear()
+        driver.find_element_by_id("email").send_keys(github_account)
+        driver.find_element_by_id("password").clear()
+        driver.find_element_by_id("password").send_keys(github_passwd)
+        driver.find_element_by_class_name("sign-in").click()
+        time.sleep(5)
+
+        # iOS or Android
+        self.Platform(PlatformName)  # Sean
+        self.ClickCarshlytics()
+        self.EnterVserion(Top_build)  # Sean
+        self.ClearSelectIcon()
+        self.SelectAll()
+        self.ReadAllUserSessions()
+        self.MoveWeb()
+        self.ReadUrl()
+        self.ReadCrashNumber()
+        self.ReadUserNumber()
+        self.ReadVersionNumber()
+        self.ReadIssueNumber()
+        self.ReadIssueTitle()
+        self.ReadIssueSubtitle()
+        self.ReadAllNumber()
+        self.ListToJsonFile('Top_build_Fabric.json')
 
     def test_Carsh_Top(self):
         print('Get crash-free session only')

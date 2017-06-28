@@ -142,6 +142,10 @@ class GithubLogin(unittest.TestCase):
         x = self.GetCarshlyticsURL() + fabricUrlValue + Version[i]
         print(x)
 
+    def EnterVserionAll(self):
+        self.driver.get(self.GetCarshlyticsURL() + fabricUrlValueAll)
+        time.sleep(5)
+
     def ClearSelectIcon(self):
 
         # 清掉預設值
@@ -399,9 +403,10 @@ class GithubLogin(unittest.TestCase):
             SelectVersionA.pop()
 
         # 讀取 All Verison
-        # print("你選擇的版本:\nAll Version")
-        # # self.ClearSelectIcon()
-        # self.ReadAllUserSessions()
+        print("你選擇的版本:\nAll Version")
+        # self.ClearSelectIcon()
+        self.EnterVserionAll()
+        self.ReadAllUserSessions()
 
         # 查詢前幾版的崩潰狀況
         self.ListToJsonFile_Crash('Fabric.json')

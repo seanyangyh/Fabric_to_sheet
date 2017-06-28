@@ -122,8 +122,9 @@ class GithubLogin(unittest.TestCase):
         for i in URL:
             print("get CarshlyticsURL")
             Crashlytics = i.get_attribute("href")
+            print(Crashlytics)
 
-        return Crashlytics
+            return Crashlytics
 
 
     def EnterVserion(self,Version):
@@ -138,7 +139,8 @@ class GithubLogin(unittest.TestCase):
             # self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
             time.sleep(5)
 
-
+        x = self.GetCarshlyticsURL() + fabricUrlValue + Version[i]
+        print(x)
 
     def ClearSelectIcon(self):
 

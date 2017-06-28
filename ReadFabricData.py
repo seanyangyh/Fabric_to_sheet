@@ -74,7 +74,7 @@ SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
 
-fabricUrlValue = "?time=last-ninety-days&event_type=all&subFilter=state&state=open&build%5B0%5D"
+fabricUrlValue = "?time=last-ninety-days&event_type=all&subFilter=state&state=open&build%5B0%5D="
 Crashlytics = ''
 fabricUrlValueAll = "?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true"
 

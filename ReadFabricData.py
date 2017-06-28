@@ -74,14 +74,15 @@ SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
 
-fabricUrl = "https://fabric.io"
+fabricUrlValue = "?time=last-ninety-days&event_type=all&subFilter=state&state=open&build%5B0%5D"
 Crashlytics = ''
+fabricUrlValueAll = "?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true"
 
 '''
 
 https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=top-builds
 https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=6.2.20.29
-
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true
 /conew4/ios/apps/com.yunfang.photogrid/issues
 
 '''
@@ -130,10 +131,11 @@ class GithubLogin(unittest.TestCase):
             print(Version[i])
 
         for i in range(len(Version)):
-            VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
-            VersionCheck[0].click()
-            self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
-            time.sleep(3)
+            # VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
+            # VersionCheck[0].click()
+            self.driver.get(Crashlytics + fabricUrlValue + Version[i])
+            # self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
+            time.sleep(5)
 
 
 
@@ -389,14 +391,14 @@ class GithubLogin(unittest.TestCase):
         for i in range(len(SelectVersion)):
             SelectVersionA.append(SelectVersion[i])
             self.EnterVserion(SelectVersionA)  # Sean
-            self.ClearSelectIcon()
+            # self.ClearSelectIcon()
             self.ReadAllUserSessions()
             SelectVersionA.pop()
 
         # 讀取 All Verison
-        print("你選擇的版本:\nAll Version")
-        self.ClearSelectIcon()
-        self.ReadAllUserSessions()
+        # print("你選擇的版本:\nAll Version")
+        # # self.ClearSelectIcon()
+        # self.ReadAllUserSessions()
 
         # 查詢前幾版的崩潰狀況
         self.ListToJsonFile_Crash('Fabric.json')

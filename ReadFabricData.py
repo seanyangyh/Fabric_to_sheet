@@ -122,7 +122,8 @@ class GithubLogin(unittest.TestCase):
         for i in URL:
             print("get CarshlyticsURL")
             Crashlytics = i.get_attribute("href")
-            print(Crashlytics)
+
+        return Crashlytics
 
 
     def EnterVserion(self,Version):
@@ -133,7 +134,7 @@ class GithubLogin(unittest.TestCase):
         for i in range(len(Version)):
             # VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
             # VersionCheck[0].click()
-            self.driver.get(Crashlytics + fabricUrlValue + Version[i])
+            self.driver.get(self.GetCarshlyticsURL() + fabricUrlValue + Version[i])
             # self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
             time.sleep(5)
 
@@ -386,7 +387,7 @@ class GithubLogin(unittest.TestCase):
         time.sleep(5)
         self.Platform(PlatformName)  # Sean
         self.GetCarshlyticsURL()
-        self.ClickCarshlytics()
+        # self.ClickCarshlytics()
 
         for i in range(len(SelectVersion)):
             SelectVersionA.append(SelectVersion[i])

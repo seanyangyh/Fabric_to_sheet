@@ -73,6 +73,21 @@ Top_build = User_Input.Top_build
 SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
+
+fabricUrlValue = "?time=last-ninety-days&event_type=all&subFilter=state&state=open&build%5B0%5D="
+Crashlytics = ''
+fabricUrlValueAll = "?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true"
+
+'''
+
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=top-builds
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=6.2.20.29
+https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true
+/conew4/ios/apps/com.yunfang.photogrid/issues
+
+'''
+
+
 class GithubLogin(unittest.TestCase):
     def setUp(self):
         self.display = Display(visible=0, size=(800,600))
@@ -101,6 +116,16 @@ class GithubLogin(unittest.TestCase):
         self.driver.find_element_by_css_selector(".crashlytics i").click()
         time.sleep(5)
 
+    def GetCarshlyticsURL(self):
+
+        URL = self.driver.find_elements_by_css_selector(".flex-1 .products-wrapper .crashlytics")
+        for i in URL:
+            print("get CarshlyticsURL")
+            Crashlytics = i.get_attribute("href")
+            print(Crashlytics)
+
+            return Crashlytics
+
 
     def EnterVserion(self,Version):
         print("你選擇的版本:")
@@ -108,12 +133,18 @@ class GithubLogin(unittest.TestCase):
             print(Version[i])
 
         for i in range(len(Version)):
-            VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
-            VersionCheck[0].click()
-            self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
-            time.sleep(3)
+            # VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
+            # VersionCheck[0].click()
+            self.driver.get(self.GetCarshlyticsURL() + fabricUrlValue + Version[i])
+            # self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
+            time.sleep(5)
 
+        x = self.GetCarshlyticsURL() + fabricUrlValue + Version[i]
+        print(x)
 
+    def EnterVserionAll(self):
+        self.driver.get(self.GetCarshlyticsURL() + fabricUrlValueAll)
+        time.sleep(5)
 
     def ClearSelectIcon(self):
 
@@ -334,7 +365,7 @@ class GithubLogin(unittest.TestCase):
         self.Platform(PlatformName)  # Sean
         self.ClickCarshlytics()
         self.EnterVserion(Top_build)  # Sean
-        self.ClearSelectIcon()
+        # self.ClearSelectIcon()
         self.SelectAll()
         self.ReadAllUserSessions()
         self.MoveWeb()
@@ -361,18 +392,20 @@ class GithubLogin(unittest.TestCase):
         driver.find_element_by_class_name("sign-in").click()
         time.sleep(5)
         self.Platform(PlatformName)  # Sean
-        self.ClickCarshlytics()
+        self.GetCarshlyticsURL()
+        # self.ClickCarshlytics()
 
         for i in range(len(SelectVersion)):
             SelectVersionA.append(SelectVersion[i])
             self.EnterVserion(SelectVersionA)  # Sean
-            self.ClearSelectIcon()
+            # self.ClearSelectIcon()
             self.ReadAllUserSessions()
             SelectVersionA.pop()
 
         # 讀取 All Verison
         print("你選擇的版本:\nAll Version")
-        self.ClearSelectIcon()
+        # self.ClearSelectIcon()
+        self.EnterVserionAll()
         self.ReadAllUserSessions()
 
         # 查詢前幾版的崩潰狀況

@@ -74,12 +74,12 @@ SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
 
-fabricUrlValue = "?time=last-ninety-days&event_type=all&subFilter=state&state=open&build%5B0%5D="
+fabricUrlValue = "?time=last-seven-days&event_type=all&subFilter=state&state=open&build[0]="
 Crashlytics = ''
 fabricUrlValueAll = "?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true"
 
 '''
-
+?time=last-seven-days&event_type=all&subFilter=state&state=open&build[0]=6.2.30.3
 https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=top-builds
 https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=6.2.20.29
 https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true

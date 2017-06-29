@@ -118,7 +118,7 @@ def get_iOS_sheet_version(spreadsheet_id, sheet_range, service):
             if '審核通過' in data['values'][i][5]:
                 Version.append(data['values'][i][2])
                 count += 1
-            if count == 3:
+            if count == 5:
                 break
         except:
             continue

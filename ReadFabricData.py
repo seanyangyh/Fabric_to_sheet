@@ -22,6 +22,8 @@ from pyvirtualdisplay import Display
 fabirc_user = os.getenv('FABRICUSER')
 fabirc_password = os.getenv('FABRICPASSWORD')
 
+pgk = os.getenv('PGPKG_iOS')
+
 
 github_account = fabirc_user
 github_passwd = fabirc_password
@@ -44,6 +46,7 @@ IssueTitleTitle = []
 IssueSubtitleTitle = []
 TestAllTitle = []
 URLTitle = []
+GetUserNumberTest = []
 
 '''A代表再次重新放入新的字串'''
 IssueNumberA = []
@@ -74,29 +77,45 @@ SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
 
-fabricUrlValue = "?time=last-seven-days&event_type=all&subFilter=state&state=open&build[0]="
-Crashlytics = ''
-fabricUrlValueAll = "?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true"
 
-'''
-?time=last-seven-days&event_type=all&subFilter=state&state=open&build[0]=6.2.30.3
-https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=top-builds
-https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&build%5B0%5D=6.2.20.29
-https://fabric.io/conew4/ios/apps/com.yunfang.photogrid/issues?time=last-seven-days&event_type=all&subFilter=state&state=open&showAllBuilds=true
-/conew4/ios/apps/com.yunfang.photogrid/issues
 
-'''
+RecentActivityVersion = []
+RecentActivityVersionTitle = []
+RecentActivityOccurrences = []
+RecentActivityOccurrencesTitle = []
 
+
+RecentActivityOccurrencesA = []
+RecentActivityVersionA = []
+
+RecentActivity = []
+RecentActivityDict = {}
+
+
+
+
+GetGoodAdoptionURLTest = []
 
 class GithubLogin(unittest.TestCase):
     def setUp(self):
-        self.display = Display(visible=0, size=(800,600))
+        self.display = Display(visible=0, size=(1920, 1080))
         self.display.start()
         self.driver = webdriver.Firefox(executable_path='./geckodriver')
         self.driver.implicitly_wait(30)
         self.base_url = "https://www.fabric.io"
         self.verificationErrors = []
         self.accept_next_alert = True
+
+    def JSonFile(self, file):
+        '''
+         讀取檔案將參數放入到ADJson()內是你要丟入的檔案
+         範例：
+         ADJson = JSonFile('536_default.json')
+        '''
+        with open(file, 'r', encoding='utf-8')as f:  # 3.5
+            ADJson = json.load(f, object_pairs_hook=OrderedDict)
+        return ADJson
+
 
     def Platform(self, PlatformName):
         PlatformCss = self.driver.find_elements_by_css_selector('.js-app-view span')
@@ -116,16 +135,6 @@ class GithubLogin(unittest.TestCase):
         self.driver.find_element_by_css_selector(".crashlytics i").click()
         time.sleep(5)
 
-    def GetCarshlyticsURL(self):
-
-        URL = self.driver.find_elements_by_css_selector(".flex-1 .products-wrapper .crashlytics")
-        for i in URL:
-            print("get CarshlyticsURL")
-            Crashlytics = i.get_attribute("href")
-            print(Crashlytics)
-
-            return Crashlytics
-
 
     def EnterVserion(self,Version):
         print("你選擇的版本:")
@@ -133,18 +142,12 @@ class GithubLogin(unittest.TestCase):
             print(Version[i])
 
         for i in range(len(Version)):
-            # VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
-            # VersionCheck[0].click()
-            self.driver.get(self.GetCarshlyticsURL() + fabricUrlValue + Version[i])
-            # self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
-            time.sleep(5)
+            VersionCheck = self.driver.find_elements_by_css_selector(".Select-arrow-zone span")
+            VersionCheck[0].click()
+            self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
+            time.sleep(3)
 
-        x = self.GetCarshlyticsURL() + fabricUrlValue + Version[i]
-        print(x)
 
-    def EnterVserionAll(self):
-        self.driver.get(self.GetCarshlyticsURL() + fabricUrlValueAll)
-        time.sleep(5)
 
     def ClearSelectIcon(self):
 
@@ -272,6 +275,19 @@ class GithubLogin(unittest.TestCase):
             TestAllTitle.append("Rank")
             x += 1
 
+    def Get_RecentActivity(self):
+        self.DefaultValue()
+        RecentActivity = self.driver.find_elements_by_css_selector(".padding-left-15px tbody td")
+        # print(len(RecentActivityOccurrences))
+        x = 1
+        for i in RecentActivity:
+            if x % 2 == 0:
+                RecentActivityOccurrences.append(i.text)
+                RecentActivityOccurrencesTitle.append('Occurrences')
+            else:
+                RecentActivityVersion.append(i.text)
+                RecentActivityVersionTitle.append('Version')
+            x += 1
     def ListToJsonFile(self, FileName):
 
         print("開始-->將資料轉成Json")
@@ -323,7 +339,11 @@ class GithubLogin(unittest.TestCase):
         User_Input.Version.append('All Version')
         itmes = 0
         Test = len(AllUserSessions)//2
+        User = len(GetUserNumberTest)
+
         for i in range(Test):
+            # 主要是新增崩潰量 因為一次抓取兩個參數值
+            # 一開始會先執行else部分之後都會去執行i >=1
             if i >= 1:
                 itmes += 1
                 AllUserSessionsA.append(AllUserSessions[i + itmes])
@@ -335,6 +355,16 @@ class GithubLogin(unittest.TestCase):
                 AllUserSessionsNameA.append(AllUserSessionsName[i])
                 AllUserSessionsA.append(AllUserSessions[i + 1])
                 AllUserSessionsNameA.append(AllUserSessionsName[i + 1])
+
+            # 主要是判斷使用者的人數 如果超過某區塊會將使用者人數設定為Null.
+            if i > (User-1):
+                # AllUserSessionsA.append('Null')
+                # AllUserSessionsNameA.append('User')
+                pass
+            else:
+                AllUserSessionsA.append(GetUserNumberTest[i])
+                AllUserSessionsNameA.append('User')
+
             Sessions = OrderedDict(zip(AllUserSessionsNameA, AllUserSessionsA))
             SessionsA.append(Sessions)
 
@@ -347,6 +377,7 @@ class GithubLogin(unittest.TestCase):
         print("結束-->將資料轉成Json")
         print("*"*10)
         print("請查看" + FileName)
+
 
     def test_Read_Fabirc(self):
         print('Top build version query raw data')
@@ -365,7 +396,7 @@ class GithubLogin(unittest.TestCase):
         self.Platform(PlatformName)  # Sean
         self.ClickCarshlytics()
         self.EnterVserion(Top_build)  # Sean
-        # self.ClearSelectIcon()
+        self.ClearSelectIcon()
         self.SelectAll()
         self.ReadAllUserSessions()
         self.MoveWeb()
@@ -379,6 +410,43 @@ class GithubLogin(unittest.TestCase):
         self.ReadAllNumber()
         self.ListToJsonFile('Top_build_Fabric.json')
 
+        print("Get Recent Activity")
+        time.sleep(2)
+        ADJson = self.JSonFile('Top_build_Fabric.json')
+
+        # driver.get(ADJson['data'][0]['URL'])
+        # self.Get_RecentActivity()
+
+        for i in range(len(ADJson['data'])):
+            driver.get(ADJson['data'][i]['URL'])
+            self.Get_RecentActivity()
+
+            for j in range(len(RecentActivityOccurrences)):
+                RecentActivityOccurrencesA.append(RecentActivityOccurrences[j])
+                RecentActivityVersionA.append(RecentActivityVersion[j])
+
+                '''將兩個字串合併成字典'''
+                RecentActivityOccurrencesDict = OrderedDict(
+                    zip(RecentActivityOccurrencesTitle, RecentActivityOccurrencesA))
+                RecentActivityVersionDict = OrderedDict(zip(RecentActivityVersionTitle, RecentActivityVersionA))
+
+                '''每次字典更新新增一筆'''
+                RecentActivityVersionDict.update(RecentActivityOccurrencesDict)
+                RecentActivity.append(RecentActivityVersionDict)
+                RecentActivityDict['RecentActivity'] = RecentActivity
+                ADJson['data'][i].update(RecentActivityDict)
+
+
+                # RecentActivityDict = {}
+
+        with open('Top_build_Fabric.json', 'w') as f:
+            json.dump(ADJson, f)
+        f.close()
+        print("結束-->將資料轉成Json")
+        print("*" * 10)
+        print("請查看" + 'Top_build_Fabric.json')
+
+
     def test_Carsh_Top(self):
         print('Get crash-free session only')
 
@@ -390,30 +458,110 @@ class GithubLogin(unittest.TestCase):
         driver.find_element_by_id("password").clear()
         driver.find_element_by_id("password").send_keys(github_passwd)
         driver.find_element_by_class_name("sign-in").click()
+        driver.save_screenshot('Mark.png')
         time.sleep(5)
         self.Platform(PlatformName)  # Sean
-        self.GetCarshlyticsURL()
-        # self.ClickCarshlytics()
+        self.ClickCarshlytics()
 
         for i in range(len(SelectVersion)):
             SelectVersionA.append(SelectVersion[i])
+
             self.EnterVserion(SelectVersionA)  # Sean
-            # self.ClearSelectIcon()
+            self.ClearSelectIcon()
             self.ReadAllUserSessions()
+            # self.GetGoodAdoptionURLfunction()
+
             SelectVersionA.pop()
 
-        # 讀取 All Verison
+            # 讀取 All Verison
         print("你選擇的版本:\nAll Version")
-        # self.ClearSelectIcon()
-        self.EnterVserionAll()
+        self.ClearSelectIcon()
         self.ReadAllUserSessions()
+        # GetUserNumberTest.append("Null")
+        self.GetGoodAdoptionUserNumber()
+        # self.GetGoodAdoptionURLfunction()
+        #
+        # for i in range(len(GetGoodAdoptionURLTest)):
+        #
+        #     if GetGoodAdoptionURLTest[i] is 'Null':
+        #         GetUserNumberTest.append('Null')
+        #     else:
+        #         self.driver.get(GetGoodAdoptionURLTest[i])
+        #         time.sleep(15)
+        #         self.driver.save_screenshot(str([i]) + 'Mark.png')
+        #         self.GetGoodAdoptionUserNumber()
 
         # 查詢前幾版的崩潰狀況
         self.ListToJsonFile_Crash('Fabric.json')
 
+
+    def GetGoodAdoptionUserNumber(self):
+        UserURL = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
+        UserURLAll = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
+
+        print("你選擇的版本:")
+        for i in range(len(SelectVersion)):
+            print(SelectVersion[i])
+
+        for i in range(len(SelectVersion)):
+            self.driver.get(UserURL + SelectVersion[i])
+            time.sleep(5)
+
+
+
+            GetUserNumber = self.driver.find_elements_by_css_selector(".coverage-section .flex-1 .flex-1 .large")
+            print('GetUserNumber : ' + str(GetUserNumber))
+            x = 0
+            for y in GetUserNumber:
+                x += 1
+                if x == 1:
+                    GetUserNumberTest.append(str(y.text))
+                    print("get user")
+                    print(str(y.text))
+
+            time.sleep(3)
+
+        self.driver.get(UserURLAll)
+        time.sleep(5)
+        GetUserNumber = self.driver.find_elements_by_css_selector(".coverage-section .flex-1 .flex-1 .large")
+        x = 0
+        for y in GetUserNumber:
+            x += 1
+            if x == 1:
+                GetUserNumberTest.append(str(y.text))
+                print("get user")
+                print(str(y.text))
+
+
+    def GetGoodAdoptionURLfunction(self):
+        GetGoodAdoptionURL = self.driver.find_elements_by_css_selector('.flex-1 .answers-link')
+        TestList = []
+        # 判斷如果沒有連結會自動帶入Null
+        if GetGoodAdoptionURL == TestList:
+            GetGoodAdoptionURLTest.append('Null')
+        for i in GetGoodAdoptionURL:
+            GetGoodAdoptionURLTest.append(i.get_attribute("href"))
+            print("get href")
+            print(i.get_attribute("href"))
+
+
+
+
+    def DefaultValue(self):
+        global RecentActivityOccurrencesA, RecentActivityVersionA, RecentActivityOccurrences, RecentActivityVersion, \
+            RecentActivityDict, RecentActivity
+        RecentActivityOccurrencesA = []
+        RecentActivityVersionA = []
+        RecentActivityOccurrences = []
+        RecentActivityVersion = []
+        RecentActivityDict = {}
+        RecentActivity = []
+
+
     def tearDown(self):
         self.driver.quit()
         self.display.stop()
+
 
 if __name__ == "__main__":
     unittest.main()

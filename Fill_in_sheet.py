@@ -176,9 +176,11 @@ def history_occurrences_catcher(RecentActivity):
                 ver_split = User_Input.Version[i].split('.')
                 ver_final = ver_split[0] + '.' + ver_split[1] + ver_split[2][:-1]
                 ver = ver_final + ', '
+                print('aaa')
+                print(ver)
 
     print('aaa')
-    print(ver)
+    print(ver[:-2] + ' : ' + temp_list_count[:-2])
     return ver[:-2] + ' : ' + temp_list_count[:-2]
 
 

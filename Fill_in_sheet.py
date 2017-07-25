@@ -177,6 +177,8 @@ def history_occurrences_catcher(RecentActivity):
                 ver_final = ver_split[0] + '.' + ver_split[1] + ver_split[2][:-1]
                 ver = ver_final + ', '
 
+    print('aaa')
+    print(ver)
     return ver[:-2] + ' : ' + temp_list_count[:-2]
 
 

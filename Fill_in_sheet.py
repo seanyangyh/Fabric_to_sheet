@@ -201,6 +201,8 @@ def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, 
 
 
 def history_occurrences_slope_calculator(crash_count_list, crash_rate_data):
+    print('aaa')
+    print(crash_count_list)
     crash_count_list = crash_count_list.split(' : ')
     ver_list = crash_count_list[0].split(', ')
     crash_count_list = crash_count_list[1].split(', ')
@@ -215,7 +217,6 @@ def history_occurrences_slope_calculator(crash_count_list, crash_rate_data):
         dau_list = []
 
         print('aaa')
-        print(crash_count_list)
         print(ver_list)
         for i in range(0, len(User_Input.Version), 1):
             ver_split = User_Input.Version[i].split('.')

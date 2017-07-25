@@ -219,7 +219,8 @@ def history_occurrences_slope_calculator(crash_count_list, crash_rate_data):
             if ver_final in ver_list:
                 dau_list.append(crash_rate_data[User_Input.Version[i]]['User'])
 
-        print('aaa' + dau_list)
+        print('aaa')
+        print(dau_list)
         temp_crash_rate = []
         for i in range(0, len(crash_count_list), 1):
             dau_list[i] = float(dau_list[i].replace(',', ''))

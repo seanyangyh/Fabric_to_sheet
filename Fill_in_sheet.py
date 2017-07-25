@@ -215,6 +215,7 @@ def history_occurrences_slope_calculator(crash_count_list, crash_rate_data):
         dau_list = []
 
         print('aaa')
+        print(crash_count_list)
         print(ver_list)
         for i in range(0, len(User_Input.Version), 1):
             ver_split = User_Input.Version[i].split('.')

@@ -229,6 +229,7 @@ def history_occurrences_slope_calculator(crash_count_list, crash_rate_data):
                 temp_crash_rate.append(float(crash_count_list[i]) / dau_list[i])
 
         print(temp_crash_rate)
+        print(len(temp_crash_rate))
         if len(temp_crash_rate) == 0 or 1:
             return 1
         else:

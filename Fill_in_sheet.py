@@ -187,6 +187,7 @@ def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, 
         if i not in duplicate_list:
             h_occurrences = history_occurrences_catcher(data['data'][i]['RecentActivity'])
             h_slope = history_occurrences_slope_calculator(h_occurrences, crash_rate_data)
+            print(h_slope)
             if h_slope >= User_Input.Slope:
                 first_time_count += 1
                 if first_time_count == 1 and tf_today is False:

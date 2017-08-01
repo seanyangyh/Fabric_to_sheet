@@ -215,7 +215,7 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
         if temp_crash_rate[i] == 'dau=0':
             temp_crash_rate_percent = temp_crash_rate_percent + 'dau=0' + ', '
         else:
-            temp_percent = "{:.3%}".format(float(temp_crash_rate[i]))
+            temp_percent = "{:.2%}".format(float(temp_crash_rate[i]))
             temp_crash_rate_percent = temp_crash_rate_percent + temp_percent + ', '
 
     print(temp_ver + ' : ' + temp_list_count)

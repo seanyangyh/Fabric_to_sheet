@@ -35,7 +35,7 @@ try:
     flags.add_argument('-s', '--slope', nargs=1, action='store', default=1.2,
                        help='If slope of crash count of the latest 5 versions above this value, it will be raised, default=1.2',
                        type=float)
-    flags.add_argument('-lv', '--latestversion', nargs=1, action='store', choices=[1, 2, 3, 4, 5], default=1,
+    flags.add_argument('-v', '--version', nargs=1, action='store', choices=[1, 2, 3, 4, 5], default=1,
                        help='Run fabric automation N times for latest N versions. default=1', type=int)
 except ImportError:
     flags = None
@@ -166,7 +166,7 @@ def get_parameter(para):
     Criteria_count = para.criteria[0]
     test_flag = para.test[0]
     Slope = para.slope[0]
-    Latest_version = para.latestversion[0]
+    Latest_version = para.version[0]
 
     # auto get latest 5 versions from PG_發版紀錄 spreadsheet
     if Top_build == [] or Version == []:

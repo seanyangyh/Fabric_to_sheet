@@ -28,14 +28,14 @@ try:
     flags.add_argument('-p', '--platform', nargs=1, action='store', choices=['iOS', 'Android'], default='iOS',
                         help='Platform selection: iOS or AND, default=iOS')
     flags.add_argument('-c', '--criteria', nargs=1, action='store', default=30,
-                        help='Warning color, if above this num, text will be filled in red color, default=100',
+                        help='Slope method filtered below X times crashes, default=30',
                         type=int)
     flags.add_argument('-t', '--test', nargs=1, action='store', choices=[0, 1], default=0,
                         help='0 for official spreadsheet, 1 for test spreadsheet, default=0', type=int)
     flags.add_argument('-s', '--slope', nargs=1, action='store', default=1.2,
                        help='If slope of crash count of the latest 5 versions above this value, it will be raised, default=1.2',
                        type=float)
-    flags.add_argument('-v', '--version', nargs=1, action='store', choices=[1, 2, 3, 4, 5], default=1,
+    flags.add_argument('-v', '--version', nargs=1, action='store', default=1,
                        help='Run fabric automation N times for latest N versions. default=1', type=int)
 except ImportError:
     flags = None

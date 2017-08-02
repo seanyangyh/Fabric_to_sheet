@@ -347,7 +347,7 @@ def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
             end_column = 4
             sheet_id = User_Input.sheet_id_summary
             if float(crash_rate_value) <= 99.7:
-                update_text_color = sheet_update_text_color(i+2, i+1, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
+                update_text_color = sheet_update_text_color(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
                 print(update_text_color)
 
 
@@ -369,7 +369,7 @@ def fabric_warning_handler(column_d_data, spreadsheet_id, service):
             end_column = 12
             sheet_id = User_Input.sheet_id_all
             if int(crash_count[0]) >= 100:
-                update_text_color = sheet_update_text_color(i+2, i+1, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
+                update_text_color = sheet_update_text_color(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
                 print(update_text_color)
 
 

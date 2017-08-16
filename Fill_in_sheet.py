@@ -405,7 +405,7 @@ def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
             crash_rate_value = temp.rstrip('%')
             sheet_id = User_Input.sheet_id_summary
             if float(crash_rate_value) <= 99.7:
-                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id), spreadsheet_id, service)
+                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
     update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
     print(update_text_color)
@@ -428,7 +428,7 @@ def fabric_warning_handler(column_d_data, spreadsheet_id, service):
             crash_count = temp.strip().split(" / ")
             sheet_id = User_Input.sheet_id_all
             if int(crash_count[0].replace('k', '000')) >= 100:
-                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id), spreadsheet_id, service)
+                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
     update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
     print(update_text_color)

@@ -22,8 +22,14 @@ from pyvirtualdisplay import Display
 fabirc_user = os.getenv('FABRICUSER')
 fabirc_password = os.getenv('FABRICPASSWORD')
 
-pgk = os.getenv('PGPKG_iOS')
-
+if User_Input.PlatformName == 'iOS':
+    pgk = os.getenv('PGPKG_iOS')
+    UserURL = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
+    UserURLAll = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
+elif User_Input.PlatformName == 'Android':
+    pgk = os.getenv('PGPKG')
+    UserURL = "https://www.fabric.io/photogrid/android/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
+    UserURLAll = "https://www.fabric.io/photogrid/android/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
 
 github_account = fabirc_user
 github_passwd = fabirc_password
@@ -496,9 +502,6 @@ class GithubLogin(unittest.TestCase):
 
 
     def GetGoodAdoptionUserNumber(self):
-        UserURL = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
-        UserURLAll = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
-
         print("你選擇的版本:")
         for i in range(len(SelectVersion)):
             print(SelectVersion[i])

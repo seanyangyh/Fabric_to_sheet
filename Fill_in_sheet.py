@@ -184,6 +184,17 @@ def is_today_exist_checker(today, sheet_range):
     return False
 
 
+def split_version_by_diff_platform(ver, platform):
+    if platform == 'iOS':
+        ver_split = ver.split('.')
+        ver_final = ver_split[0] + '.' + ver_split[1] + ver_split[2][:-1]
+    elif platform == 'Android':
+        ver_last = ver.index('(')
+        ver_final = ver[:ver_last-1]
+
+    return ver_final
+
+
 def history_occurrences_catcher(RecentActivity, crash_rate_data):
     temp_list_count = ''
     ver = ''
@@ -191,9 +202,7 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
         for j in range(0, len(RecentActivity), 1):
             if User_Input.Version[i] == RecentActivity[j]['Version']:
                 temp_list_count = temp_list_count + RecentActivity[j]['Occurrences'] + ', '
-                ver_split = User_Input.Version[i].split('.')
-                ver_final = ver_split[0] + '.' + ver_split[1] + ver_split[2][:-1]
-                ver = ver + ver_final + ', '
+                ver = ver + split_version_by_diff_platform(User_Input.Version[i], User_Input.PlatformName) + ', '
 
     temp_ver = ver[:-2]
     ver_list = temp_ver.split(', ')
@@ -205,9 +214,7 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
     print(crash_count_list)
     dau_list = []
     for i in range(0, len(User_Input.Version), 1):
-        ver_split = User_Input.Version[i].split('.')
-        ver_final = ver_split[0] + '.' + ver_split[1] + ver_split[2][:-1]
-        if ver_final in ver_list:
+        if split_version_by_diff_platform(User_Input.Version[i], User_Input.PlatformName) in ver_list:
             dau_list.append(crash_rate_data[User_Input.Version[i]]['User'])
 
     print(dau_list)
@@ -260,7 +267,7 @@ def history_crash_rate_slope_calculator(crash_rate_data):
         return 1
     else:
         temp_slope_list = []
-        for i in range(0, len(crash_rate_data_filtered) - 1, 1):
+        for i in range(0, len(crash_rate_data_filtered)-1, 1):
             temp_slope = float(crash_rate_data_filtered[i]) / float(crash_rate_data_filtered[i + 1])
             temp_slope_list.append(temp_slope)
 

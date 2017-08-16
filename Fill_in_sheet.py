@@ -71,7 +71,7 @@ def sheet_summary_modify_handler_row_data(date, ver, crash_uv, crash_pv, dau, sh
             'values': [
                 [date, ver, crash_uv, crash_pv, dau]
             ],
-            'range': 'Summary!A' + sheet_range + ':E' + sheet_range
+            'range': 'Summary!A' + str(sheet_range) + ':E' + str(sheet_range)
         },
     ]
 

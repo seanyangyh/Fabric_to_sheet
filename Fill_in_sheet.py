@@ -65,6 +65,17 @@ def json_parser(raw_data):
     return json_data
 
 
+def sheet_summary_append_handler(date, ver, crash_uv, crash_pv, dau, spreadsheet_id, sheet_range, service):
+    value_range_body = {
+        'values': [
+            [date, ver, crash_uv, crash_pv, dau],
+        ]
+    }
+    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range, valueInputOption='USER_ENTERED', body=value_range_body).execute()
+    sleep(1)
+    return result
+
+
 def fabric_crash_rate_uploader(data, date, spreadsheet_id, sheet_range, service):
     # clear data of Summary!A2:E first
     request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=sheet_range, body={}).execute()
@@ -82,36 +93,6 @@ def fabric_crash_rate_uploader(data, date, spreadsheet_id, sheet_range, service)
     dau_data = data['All Version']['User']
     append_sheet = sheet_summary_append_handler(date, 'All Versions', crash_uv, crash_pv, dau_data, spreadsheet_id, sheet_range, service)
     print(append_sheet)
-
-
-def sheet_summary_append_handler(date, ver, crash_uv, crash_pv, dau, spreadsheet_id, sheet_range, service):
-    value_range_body = {
-        'values': [
-            [date, ver, crash_uv, crash_pv, dau],
-        ]
-    }
-    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
-                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
-    sleep(1)
-    return result
-
-
-def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadsheet_id, service):
-    temp_duplicate_list = []  # Temporary List to record the issue has been modified do not need raise again
-    multiple_batchUpdate_list = []
-    for i in range(0, len(column_a_data['values']), 1):
-        for j in range(0, len(data['data']), 1):
-            if column_a_data['values'][i][0] == data['data'][j]['IssueNumber']:
-                ver = data['data'][j]['Version']
-                crash_count = data['data'][j]['Crash'] + " / " + data['data'][j]['User']
-                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][j]['RecentActivity'], crash_rate_data)
-                multiple_batchUpdate_list.append(sheet_all_modify_row_data(ver, crash_count, h_crash_rate_percent, h_occurrences, str(i+1)))
-                temp_duplicate_list.append(j)
-
-    modify_sheet = sheet_all_modify_handler(multiple_batchUpdate_list, spreadsheet_id, service)
-    print(modify_sheet)
-    print(temp_duplicate_list)
-    return temp_duplicate_list
 
 
 def sheet_all_modify_row_data(data_ver, data_crash_count, data_history_crash_rate, data_history_occurrences, sheet_range):
@@ -157,23 +138,22 @@ def sheet_all_modify_handler(all_data, spreadsheet_id, service):
     return result
 
 
-def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data, data, spreadsheet_id, sheet_range, service):
-    first_time_count = 0
-    for i in range(0, len(data['data']), 1):
-        if i not in duplicate_list:
-            ver = data['data'][i]['Version']
-            if ver in User_Input.Top_build[0].split('\n'):
-                first_time_count += 1
-                if first_time_count == 1 and tf_today is False:
-                    sheet_all_append_date(today.strftime("%Y/%m/%d"), spreadsheet_id, sheet_range, service)
-                num = data['data'][i]['IssueNumber']
-                url = data['data'][i]['URL']
-                crash_count = data['data'][i]['Crash'] + " / " + data['data'][i]['User']
-                title = data['data'][i]['IssueTitle']
-                sub_title = data['data'][i]['IssueSubtitle']
-                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
-                append_sheet = sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate_percent, spreadsheet_id, sheet_range, service)
-                print(append_sheet)
+def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadsheet_id, service):
+    temp_duplicate_list = []  # Temporary List to record the issue has been modified do not need raise again
+    multiple_batchUpdate_list = []
+    for i in range(0, len(column_a_data['values']), 1):
+        for j in range(0, len(data['data']), 1):
+            if column_a_data['values'][i][0] == data['data'][j]['IssueNumber']:
+                ver = data['data'][j]['Version']
+                crash_count = data['data'][j]['Crash'] + " / " + data['data'][j]['User']
+                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][j]['RecentActivity'], crash_rate_data)
+                multiple_batchUpdate_list.append(sheet_all_modify_row_data(ver, crash_count, h_crash_rate_percent, h_occurrences, str(i+1)))
+                temp_duplicate_list.append(j)
+
+    modify_sheet = sheet_all_modify_handler(multiple_batchUpdate_list, spreadsheet_id, service)
+    print(modify_sheet)
+    print(temp_duplicate_list)
+    return temp_duplicate_list
 
 
 def is_today_exist_checker(today, sheet_range):
@@ -182,6 +162,67 @@ def is_today_exist_checker(today, sheet_range):
             return True
 
     return False
+
+
+def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
+    batch_update_spreadsheet_request_color = {
+        "requests": [
+            {
+                "repeatCell": {
+                    "range": {
+                        "sheetId": User_Input.sheet_id_all,
+                        "startRowIndex": row-1,
+                        "endRowIndex": row,
+                        "startColumnIndex": 0,
+                        "endColumnIndex": 12
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "backgroundColor": {
+                                "red": 1,
+                                "green": 1,
+                                "blue": 0
+                            }
+                        }
+                    },
+                    "fields": "userEnteredFormat(backgroundColor)"
+                }
+            },
+            {
+                "mergeCells": {
+                    "range": {
+                        "sheetId": User_Input.sheet_id_all,
+                        "startRowIndex": row-1,
+                        "endRowIndex": row,
+                        "startColumnIndex": 0,
+                        "endColumnIndex": 12
+                    },
+                    "mergeType": "MERGE_ROWS"
+                }
+            }
+        ]
+    }
+    result = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id,
+                                                 body=batch_update_spreadsheet_request_color).execute()
+    sleep(1)
+    return result
+
+
+def sheet_all_append_date(date, spreadsheet_id, sheet_range, service):
+    value_range_body = {
+        'values': [
+            [date],
+        ]
+    }
+    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
+                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
+    sleep(1)
+    print(result)
+    begin_split = result['updates']['updatedRange'].split('!')
+    second_split = begin_split[1].lstrip('A')
+    row = int(second_split)
+    result2 = sheet_all_fill_color_and_merge(row, spreadsheet_id, service)
+    return result2
 
 
 def split_version_by_diff_platform(ver, platform):
@@ -240,6 +281,51 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
     return temp_ver + ' : ' + temp_list_count, temp_ver + ' : ' + temp_crash_rate_percent[:-2], temp_crash_rate
 
 
+def sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate, spreadsheet_id, sheet_range, service):
+    value_range_body = {
+        'values': [
+            [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences],
+        ]
+    }
+    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
+                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
+    sleep(1)
+    return result
+
+
+def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data, data, spreadsheet_id, sheet_range, service):
+    first_time_count = 0
+    for i in range(0, len(data['data']), 1):
+        if i not in duplicate_list:
+            ver = data['data'][i]['Version']
+            if ver in User_Input.Top_build[0].split('\n'):
+                first_time_count += 1
+                if first_time_count == 1 and tf_today is False:
+                    sheet_all_append_date(today.strftime("%Y/%m/%d"), spreadsheet_id, sheet_range, service)
+                num = data['data'][i]['IssueNumber']
+                url = data['data'][i]['URL']
+                crash_count = data['data'][i]['Crash'] + " / " + data['data'][i]['User']
+                title = data['data'][i]['IssueTitle']
+                sub_title = data['data'][i]['IssueSubtitle']
+                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
+                append_sheet = sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate_percent, spreadsheet_id, sheet_range, service)
+                print(append_sheet)
+
+
+def history_crash_rate_slope_calculator(crash_rate_data):
+    crash_rate_data_filtered = [i for i in crash_rate_data if 'dau=0' not in i]
+    if len(crash_rate_data_filtered) == 0 or 1:
+        return 1
+    else:
+        temp_slope_list = []
+        for i in range(0, len(crash_rate_data_filtered)-1, 1):
+            temp_slope = float(crash_rate_data_filtered[i]) / float(crash_rate_data_filtered[i + 1])
+            temp_slope_list.append(temp_slope)
+
+        print(temp_slope_list)
+        return max(temp_slope_list)
+
+
 def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, crash_rate_data, data, spreadsheet_id, sheet_range, service):
     first_time_count = 0
     for i in range(0, len(data['data']), 1):
@@ -261,123 +347,78 @@ def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, 
                 print(append_sheet)
 
 
-def history_crash_rate_slope_calculator(crash_rate_data):
-    crash_rate_data_filtered = [i for i in crash_rate_data if 'dau=0' not in i]
-    if len(crash_rate_data_filtered) == 0 or 1:
-        return 1
-    else:
-        temp_slope_list = []
-        for i in range(0, len(crash_rate_data_filtered)-1, 1):
-            temp_slope = float(crash_rate_data_filtered[i]) / float(crash_rate_data_filtered[i + 1])
-            temp_slope_list.append(temp_slope)
-
-        print(temp_slope_list)
-        return max(temp_slope_list)
-
-
-def sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate, spreadsheet_id, sheet_range, service):
-    value_range_body = {
-        'values': [
-            [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences],
-        ]
-    }
-    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
-                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
-    sleep(1)
-    return result
-
-
-def sheet_all_append_date(date, spreadsheet_id, sheet_range, service):
-    value_range_body = {
-        'values': [
-            [date],
-        ]
-    }
-    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
-                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
-    sleep(1)
-    print(result)
-    begin_split = result['updates']['updatedRange'].split('!')
-    second_split = begin_split[1].lstrip('A')
-    row = int(second_split)
-    result2 = sheet_all_fill_color_and_merge(row, spreadsheet_id, service)
-    return result2
-
-
-def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
-    batch_update_spreadsheet_request_color = {
-        "requests": [
-            {
-                "repeatCell": {
-                    "range": {
-                        "sheetId": User_Input.sheet_id_all,
-                        "startRowIndex": row-1,
-                        "endRowIndex": row,
-                        "startColumnIndex": 0,
-                        "endColumnIndex": 12
-                    },
-                    "cell": {
-                        "userEnteredFormat": {
-                            "backgroundColor": {
-                                "red": 1,
-                                "green": 1,
-                                "blue": 0
+def sheet_update_text_color_row_data(start_row, end_row, start_column, end_column, red, green, blue, sheet_id):
+    data = [
+        {
+            "repeatCell": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "startRowIndex": start_row,
+                    "endRowIndex": end_row,
+                    "startColumnIndex": start_column,
+                    "endColumnIndex": end_column
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "textFormat": {
+                            "foregroundColor": {
+                                "red": red,
+                                "green": green,
+                                "blue": blue
                             }
                         }
-                    },
-                    "fields": "userEnteredFormat(backgroundColor)"
-                }
-            },
-            {
-                "mergeCells": {
-                    "range": {
-                        "sheetId": User_Input.sheet_id_all,
-                        "startRowIndex": row-1,
-                        "endRowIndex": row,
-                        "startColumnIndex": 0,
-                        "endColumnIndex": 12
-                    },
-                    "mergeType": "MERGE_ROWS"
-                }
+                    }
+                },
+                "fields": "userEnteredFormat(textFormat)"
             }
+        },
+    ]
+
+    return data
+
+
+def sheet_update_text_color(all_data, spreadsheet_id, service):
+    batch_update_spreadsheet_request_color = {
+        "requests": [
+            all_data
         ]
     }
-    result = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id,
-                                                 body=batch_update_spreadsheet_request_color).execute()
+    result = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_spreadsheet_request_color).execute()
     sleep(1)
     return result
 
 
 def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
+    multiple_batchUpdate_list = []
     start_row = 0
     end_row = 99
     start_column = 3
     end_column = 4
     sheet_id = User_Input.sheet_id_summary
-    update_text_color_all = sheet_update_text_color(start_row, end_row, start_column, end_column, 0, 0, 0, sheet_id, spreadsheet_id, service)
+    update_text_color_all = sheet_update_text_color(sheet_update_text_color_row_data(start_row, end_row, start_column, end_column, 0, 0, 0, sheet_id), spreadsheet_id, service)
     print(update_text_color_all)
 
     for i in range(0, len(column_d_data), 1):
         crash_rate = column_d_data[i]
-        print(crash_rate)
         if not crash_rate == []:
             temp = crash_rate[0]
             crash_rate_value = temp.rstrip('%')
-            start_column = 3
-            end_column = 4
             sheet_id = User_Input.sheet_id_summary
             if float(crash_rate_value) <= 99.7:
-                update_text_color = sheet_update_text_color(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
-                print(update_text_color)
+                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id), spreadsheet_id, service)
+
+    update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
+    print(update_text_color)
 
 
 def fabric_warning_handler(column_d_data, spreadsheet_id, service):
+    multiple_batchUpdate_list = []
     start_row = 0
     end_row = 999
     start_column = 0
     end_column = 12
     sheet_id = User_Input.sheet_id_all
-    update_text_color_all = sheet_update_text_color(start_row, end_row, start_column, end_column, 0, 0, 0, sheet_id, spreadsheet_id, service)
+    update_text_color_all = sheet_update_text_color(sheet_update_text_color_row_data(start_row, end_row, start_column, end_column, 0, 0, 0, sheet_id), spreadsheet_id, service)
     print(update_text_color_all)
 
     for i in range(0, len(column_d_data), 1):
@@ -385,46 +426,12 @@ def fabric_warning_handler(column_d_data, spreadsheet_id, service):
         if not crash_user == []:
             temp = crash_user[0]
             crash_count = temp.strip().split(" / ")
-            start_column = 0
-            end_column = 12
             sheet_id = User_Input.sheet_id_all
             if int(crash_count[0].replace('k', '000')) >= 100:
-                update_text_color = sheet_update_text_color(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id, spreadsheet_id, service)
-                print(update_text_color)
+                multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id), spreadsheet_id, service)
 
-
-def sheet_update_text_color(start_row, end_row, start_column, end_column, red, green, blue, sheet_id, spreadsheet_id, service):
-    batch_update_spreadsheet_request_color = {
-        "requests": [
-            {
-                "repeatCell": {
-                    "range": {
-                        "sheetId": sheet_id,
-                        "startRowIndex": start_row,
-                        "endRowIndex": end_row,
-                        "startColumnIndex": start_column,
-                        "endColumnIndex": end_column
-                    },
-                    "cell": {
-                        "userEnteredFormat": {
-                            "textFormat": {
-                                "foregroundColor": {
-                                    "red": red,
-                                    "green": green,
-                                    "blue": blue
-                                }
-                            }
-                        }
-                    },
-                    "fields": "userEnteredFormat(textFormat)"
-                }
-            },
-        ]
-    }
-    result = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id,
-                                                body=batch_update_spreadsheet_request_color).execute()
-    sleep(1)
-    return result
+    update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
+    print(update_text_color)
 
 
 def main():

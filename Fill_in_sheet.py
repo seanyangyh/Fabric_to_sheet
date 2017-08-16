@@ -65,34 +65,47 @@ def json_parser(raw_data):
     return json_data
 
 
-def sheet_summary_append_handler(date, ver, crash_uv, crash_pv, dau, spreadsheet_id, sheet_range, service):
-    value_range_body = {
-        'values': [
-            [date, ver, crash_uv, crash_pv, dau],
+def sheet_summary_modify_handler_row_data(date, ver, crash_uv, crash_pv, dau, sheet_range):
+    data = [
+        {
+            'values': [
+                [date, ver, crash_uv, crash_pv, dau]
+            ],
+            'range': 'Summary!A' + sheet_range + ':E' + sheet_range
+        },
+    ]
+
+    return data
+
+
+def sheet_batchUpdate_handler(all_data, spreadsheet_id, service):
+    batch_update_values_request_body = {
+        'value_input_option': 'USER_ENTERED',
+        'data': [
+            all_data
         ]
     }
-    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range, valueInputOption='USER_ENTERED', body=value_range_body).execute()
+    result = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_values_request_body).execute()
     sleep(1)
     return result
 
 
 def fabric_crash_rate_uploader(data, date, spreadsheet_id, sheet_range, service):
-    # clear data of Summary!A2:E first
-    request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=sheet_range, body={}).execute()
-    print(request)
+    multiple_batchUpdate_list = []
     for i in range(0, len(User_Input.Version), 1):
         crash_uv = data[User_Input.Version[i]]['CRASH-FREE USERS']
         crash_pv = data[User_Input.Version[i]]['CRASH-FREE SESSIONS']
         dau_data = data[User_Input.Version[i]]['User']
-        append_sheet = sheet_summary_append_handler(date, User_Input.Version[i], crash_uv, crash_pv, dau_data, spreadsheet_id, sheet_range, service)
-        print(append_sheet)
+        multiple_batchUpdate_list.append(sheet_summary_modify_handler_row_data(date, User_Input.Version[i], crash_uv, crash_pv, dau_data, i+2))
 
     # append All Versions data
     crash_uv = data['All Version']['CRASH-FREE USERS']
     crash_pv = data['All Version']['CRASH-FREE SESSIONS']
     dau_data = data['All Version']['User']
-    append_sheet = sheet_summary_append_handler(date, 'All Versions', crash_uv, crash_pv, dau_data, spreadsheet_id, sheet_range, service)
-    print(append_sheet)
+    multiple_batchUpdate_list.append(sheet_summary_modify_handler_row_data(date, 'All Versions', crash_uv, crash_pv, dau_data, len(User_Input.Version)+2))
+
+    modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
+    print(modify_sheet)
 
 
 def sheet_all_modify_row_data(data_ver, data_crash_count, data_history_crash_rate, data_history_occurrences, sheet_range):
@@ -126,18 +139,6 @@ def sheet_all_modify_row_data(data_ver, data_crash_count, data_history_crash_rat
     return data
 
 
-def sheet_all_modify_handler(all_data, spreadsheet_id, service):
-    batch_update_values_request_body = {
-        'value_input_option': 'USER_ENTERED',
-        'data': [
-            all_data
-        ]
-    }
-    result = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_values_request_body).execute()
-    sleep(1)
-    return result
-
-
 def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadsheet_id, service):
     temp_duplicate_list = []  # Temporary List to record the issue has been modified do not need raise again
     multiple_batchUpdate_list = []
@@ -150,7 +151,7 @@ def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadshee
                 multiple_batchUpdate_list.append(sheet_all_modify_row_data(ver, crash_count, h_crash_rate_percent, h_occurrences, str(i+1)))
                 temp_duplicate_list.append(j)
 
-    modify_sheet = sheet_all_modify_handler(multiple_batchUpdate_list, spreadsheet_id, service)
+    modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
     print(modify_sheet)
     print(temp_duplicate_list)
     return temp_duplicate_list
@@ -443,8 +444,7 @@ def main():
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
+    service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
     # Sheet_ID from the url
     spreadsheet_id = User_Input.spreadsheet_id
@@ -474,33 +474,31 @@ def main():
     crashlytics_dict = json_parser(raw_data_crashlytics)
     print(crashlytics_dict)
 
-    # get column a data, prepare for column a and json comparison via modifier
+    # get column A data, prepare for checking today exist/column A and json comparison via modifier
     column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
     sleep(1)
     print(column_a_data)
-
     # upload detail crash data to All sheet
     is_today = is_today_exist_checker(today, column_a_data)
     duplicated_list = fabric_crashlytics_modifier(column_a_data, crash_rate_dict, crashlytics_dict, spreadsheet_id, service)
     fabric_crashlytics_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
 
-    # get column a data again for checking today exist in column A or not
+    # get column A data again for checking today exist in column A or not
     column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
     sleep(1)
     print(column_a_data)
     is_today = is_today_exist_checker(today, column_a_data)
+    # upload slope method crash data to All sheet
     fabric_crashlytics_slope_criteria_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
 
     # get Summary sheet column D data to find crash rate above 0.3% and mark as red
-    summary_column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id,
-                                                            range=range_summary_column_d).execute()
+    summary_column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_summary_column_d).execute()
     sleep(1)
     print(summary_column_d_data)
     crash_rate_warning_handler(summary_column_d_data['values'], spreadsheet_id, service)
 
     # get All sheet column D data to find crash count above 100 and mark as red
-    column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id,
-                                                            range=range_all_column_d + "2:D").execute()
+    column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_d + "2:D").execute()
     sleep(1)
     print(column_d_data)
     fabric_warning_handler(column_d_data['values'], spreadsheet_id, service)

@@ -104,8 +104,11 @@ def fabric_crash_rate_uploader(data, date, spreadsheet_id, sheet_range, service)
     dau_data = data['All Version']['User']
     multiple_batchUpdate_list.append(sheet_summary_modify_handler_row_data(date, 'All Versions', crash_uv, crash_pv, dau_data, len(User_Input.Version)+2))
 
-    modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
-    print(modify_sheet)
+    if multiple_batchUpdate_list != []:
+        modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
+        print(modify_sheet)
+    else:
+        print('There is no crash rate data to upload.')
 
 
 def sheet_all_modify_row_data(data_ver, data_crash_count, data_history_crash_rate, data_history_occurrences, sheet_range):
@@ -151,8 +154,12 @@ def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadshee
                 multiple_batchUpdate_list.append(sheet_all_modify_row_data(ver, crash_count, h_crash_rate_percent, h_occurrences, str(i+1)))
                 temp_duplicate_list.append(j)
 
-    modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
-    print(modify_sheet)
+    if multiple_batchUpdate_list !=[]:
+        modify_sheet = sheet_batchUpdate_handler(multiple_batchUpdate_list, spreadsheet_id, service)
+        print(modify_sheet)
+    else:
+        print('There is no fabric# should be modified.')
+
     print(temp_duplicate_list)
     return temp_duplicate_list
 
@@ -408,8 +415,11 @@ def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
             if float(crash_rate_value) <= 99.7:
                 multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
-    update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
-    print(update_text_color)
+    if multiple_batchUpdate_list != []:
+        update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
+        print(update_text_color)
+    else:
+        print('There is NO crash rate higher then 0.3%.')
 
 
 def fabric_warning_handler(column_d_data, spreadsheet_id, service):
@@ -431,8 +441,11 @@ def fabric_warning_handler(column_d_data, spreadsheet_id, service):
             if int(crash_count[0].replace('k', '000')) >= 100:
                 multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
-    update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
-    print(update_text_color)
+    if multiple_batchUpdate_list != []:
+        update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
+        print(update_text_color)
+    else:
+        print('There is no crash count > 100 case.')
 
 
 def main():

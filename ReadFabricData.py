@@ -422,28 +422,28 @@ class GithubLogin(unittest.TestCase):
 
         # driver.get(ADJson['data'][0]['URL'])
         # self.Get_RecentActivity()
+        try:
+            for i in range(len(ADJson['data'])):
+                driver.get(ADJson['data'][i]['URL'])
+                self.Get_RecentActivity()
 
-        for i in range(len(ADJson['data'])):
-            driver.get(ADJson['data'][i]['URL'])
-            self.Get_RecentActivity()
+                for j in range(len(RecentActivityOccurrences)):
+                    RecentActivityOccurrencesA.append(RecentActivityOccurrences[j])
+                    RecentActivityVersionA.append(RecentActivityVersion[j])
 
-            for j in range(len(RecentActivityOccurrences)):
-                RecentActivityOccurrencesA.append(RecentActivityOccurrences[j])
-                RecentActivityVersionA.append(RecentActivityVersion[j])
+                    '''將兩個字串合併成字典'''
+                    RecentActivityOccurrencesDict = OrderedDict(
+                        zip(RecentActivityOccurrencesTitle, RecentActivityOccurrencesA))
+                    RecentActivityVersionDict = OrderedDict(zip(RecentActivityVersionTitle, RecentActivityVersionA))
 
-                '''將兩個字串合併成字典'''
-                RecentActivityOccurrencesDict = OrderedDict(
-                    zip(RecentActivityOccurrencesTitle, RecentActivityOccurrencesA))
-                RecentActivityVersionDict = OrderedDict(zip(RecentActivityVersionTitle, RecentActivityVersionA))
+                    '''每次字典更新新增一筆'''
+                    RecentActivityVersionDict.update(RecentActivityOccurrencesDict)
+                    RecentActivity.append(RecentActivityVersionDict)
+                    RecentActivityDict['RecentActivity'] = RecentActivity
+                    ADJson['data'][i].update(RecentActivityDict)
+        except:
+            pass
 
-                '''每次字典更新新增一筆'''
-                RecentActivityVersionDict.update(RecentActivityOccurrencesDict)
-                RecentActivity.append(RecentActivityVersionDict)
-                RecentActivityDict['RecentActivity'] = RecentActivity
-                ADJson['data'][i].update(RecentActivityDict)
-
-
-                # RecentActivityDict = {}
 
         with open('Top_build_Fabric.json', 'w') as f:
             json.dump(ADJson, f)

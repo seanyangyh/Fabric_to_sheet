@@ -290,11 +290,9 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
 
 
 def sheet_all_append_handler_row_data(num, ver, url, crash_count, title, sub_title, h_crash_rate, h_occurrences):
-    data = [
-        [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences],
-    ]
+    data = [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences]
 
-    return data
+    return dataㄑ
 
 
 def sheet_all_append_handler(all_data, spreadsheet_id, sheet_range, service):

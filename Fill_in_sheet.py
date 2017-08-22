@@ -301,6 +301,7 @@ def sheet_all_append_handler(all_data, spreadsheet_id, sheet_range, service):
             all_data
         ]
     }
+    print(value_range_body)
     result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range, valueInputOption='USER_ENTERED', body=value_range_body).execute()
     sleep(1)
     return result

@@ -289,20 +289,28 @@ def history_occurrences_catcher(RecentActivity, crash_rate_data):
     return temp_ver + ' : ' + temp_list_count, temp_ver + ' : ' + temp_crash_rate_percent[:-2], temp_crash_rate
 
 
-def sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate, spreadsheet_id, sheet_range, service):
+def sheet_all_append_handler_row_data(num, ver, url, crash_count, title, sub_title, h_crash_rate, h_occurrences):
+    data = [
+        [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences],
+    ]
+
+    return data
+
+
+def sheet_all_append_handler(all_data, spreadsheet_id, sheet_range, service):
     value_range_body = {
         'values': [
-            [num, ver, url, crash_count, User_Input.Default_owner, User_Input.Default_status, "", "", title, sub_title, h_crash_rate, h_occurrences],
+            all_data
         ]
     }
-    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range,
-                                                     valueInputOption='USER_ENTERED', body=value_range_body).execute()
+    result = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=sheet_range, valueInputOption='USER_ENTERED', body=value_range_body).execute()
     sleep(1)
     return result
 
 
 def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data, data, spreadsheet_id, sheet_range, service):
     first_time_count = 0
+    multiple_batchUpdate_list = []
     for i in range(0, len(data['data']), 1):
         if i not in duplicate_list:
             ver = data['data'][i]['Version']
@@ -316,8 +324,13 @@ def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data
                 title = data['data'][i]['IssueTitle']
                 sub_title = data['data'][i]['IssueSubtitle']
                 h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
-                append_sheet = sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate_percent, spreadsheet_id, sheet_range, service)
-                print(append_sheet)
+                multiple_batchUpdate_list.append(sheet_all_append_handler_row_data(num, ver, url, crash_count, title, sub_title, h_crash_rate_percent, h_occurrences))
+
+    if multiple_batchUpdate_list !=[]:
+        append_sheet = sheet_all_append_handler(multiple_batchUpdate_list, spreadsheet_id, sheet_range, service)
+        print(append_sheet)
+    else:
+        print('There is no new fabric# should be appended.')
 
 
 def history_crash_rate_slope_calculator(crash_rate_data):
@@ -336,6 +349,7 @@ def history_crash_rate_slope_calculator(crash_rate_data):
 
 def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, crash_rate_data, data, spreadsheet_id, sheet_range, service):
     first_time_count = 0
+    multiple_batchUpdate_list = []
     for i in range(0, len(data['data']), 1):
         if i not in duplicate_list and int(data['data'][i]['Crash'].replace('k', '000')) >= User_Input.Criteria_count:
             h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
@@ -351,8 +365,13 @@ def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, 
                 crash_count = data['data'][i]['Crash'] + " / " + data['data'][i]['User']
                 title = data['data'][i]['IssueTitle']
                 sub_title = data['data'][i]['IssueSubtitle']
-                append_sheet = sheet_all_append_handler(num, ver, url, crash_count, title, sub_title, h_occurrences, h_crash_rate_percent, spreadsheet_id, sheet_range, service)
-                print(append_sheet)
+                multiple_batchUpdate_list.append(sheet_all_append_handler_row_data(num, ver, url, crash_count, title, sub_title, h_crash_rate_percent, h_occurrences))
+
+    if multiple_batchUpdate_list !=[]:
+        append_sheet = sheet_all_append_handler(multiple_batchUpdate_list, spreadsheet_id, sheet_range, service)
+        print(append_sheet)
+    else:
+        print('There is no crash slope warning fabric# should be appended.')
 
 
 def sheet_update_text_color_row_data(start_row, end_row, start_column, end_column, red, green, blue, sheet_id):

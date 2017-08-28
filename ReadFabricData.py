@@ -134,13 +134,16 @@ class GithubLogin(unittest.TestCase):
             # except:
                 # pass
             # PlatformNumber += 1
+        try:
+            for i in PlatformCss:
+                if i.text == PlatformName:
+                    PlatformCss[PlatformNumber].click()
+                PlatformNumber += 1
 
-        for i in PlatformCss:
-            if i.text == PlatformName:
-                PlatformCss[PlatformNumber].click()
-            PlatformNumber += 1
-
-        time.sleep(5)
+            time.sleep(5)
+        except:
+            self.driver.save_screenshot("Sean_Platform_css.png")
+            raise
 
     def ClickCarshlytics(self):
 

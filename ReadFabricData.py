@@ -156,10 +156,13 @@ class GithubLogin(unittest.TestCase):
 
 
     def ClearSelectIcon(self):
-
-        # 清掉預設值
-        self.driver.find_element_by_class_name('Select-value-icon').click()
-        time.sleep(5)
+        try:
+            # 清掉預設值
+            self.driver.find_element_by_class_name('Select-value-icon').click()
+            time.sleep(5)
+        except:
+            self.driver.save_screenshot("Sean.png")
+            raise
 
     def SelectAll(self):
         # ClickAll = self.driver.find_elements_by_css_selector("#state-group-all")

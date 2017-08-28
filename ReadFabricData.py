@@ -125,7 +125,7 @@ class GithubLogin(unittest.TestCase):
     def Platform(self, PlatformName):
         # PlatformCss = self.driver.find_elements_by_css_selector('.js-app-view span')
         PlatformCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis[title^=\'PhotoGrid\'] span')
-        # PlatformNumber = 0
+        PlatformNumber = 0
         print("你選擇的平台是" + PlatformName)
         # for i in PlatformCss:
             # try:
@@ -136,8 +136,9 @@ class GithubLogin(unittest.TestCase):
             # PlatformNumber += 1
 
         for i in PlatformCss:
-            if PlatformCss[i].text == PlatformName:
-                PlatformCss[i].click()
+            if i.text == PlatformName:
+                PlatformCss[PlatformNumber].click()
+            PlatformNumber += 1
 
         time.sleep(5)
 

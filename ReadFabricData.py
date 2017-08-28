@@ -138,6 +138,7 @@ class GithubLogin(unittest.TestCase):
             for i in PlatformCss:
                 if i.text == PlatformName:
                     PlatformCss[PlatformNumber].click()
+                    break
                 PlatformNumber += 1
 
             time.sleep(5)

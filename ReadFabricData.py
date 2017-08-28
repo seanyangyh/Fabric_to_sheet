@@ -124,16 +124,26 @@ class GithubLogin(unittest.TestCase):
 
 
     def Platform(self, PlatformName):
-        PlatformCss = self.driver.find_elements_by_css_selector('.js-app-view span')
+        # PlatformCss = self.driver.find_elements_by_css_selector('.js-app-view span')
+        AppCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis')
+        print(AppCss)
+        PlatformCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis span')
+        print(PlatformCss)
         PlatformNumber = 0
         print("你選擇的平台是" + PlatformName)
-        for i in PlatformCss:
-            try:
-                if i.text == PlatformName:
-                    PlatformCss[PlatformNumber].click()
-            except:
-                pass
-            PlatformNumber += 1
+        # for i in PlatformCss:
+            # try:
+                # if i.text == PlatformName:
+                    # PlatformCss[PlatformNumber].click()
+            # except:
+                # pass
+            # PlatformNumber += 1
+
+        # for i in range(0, len(AppCss), 1):
+           # if AppCss[i].text == PlatformName:
+
+
+
         time.sleep(5)
 
     def ClickCarshlytics(self):

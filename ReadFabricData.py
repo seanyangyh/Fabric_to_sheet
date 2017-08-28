@@ -122,14 +122,10 @@ class GithubLogin(unittest.TestCase):
             ADJson = json.load(f, object_pairs_hook=OrderedDict)
         return ADJson
 
-
     def Platform(self, PlatformName):
         # PlatformCss = self.driver.find_elements_by_css_selector('.js-app-view span')
-        AppCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis')
-        print(AppCss)
-        PlatformCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis span')
-        print(PlatformCss)
-        PlatformNumber = 0
+        PlatformCss = self.driver.find_elements_by_css_selector('.weight-regular.ellipsis[title^=\'PhotoGrid\'] span')
+        # PlatformNumber = 0
         print("你選擇的平台是" + PlatformName)
         # for i in PlatformCss:
             # try:
@@ -139,10 +135,9 @@ class GithubLogin(unittest.TestCase):
                 # pass
             # PlatformNumber += 1
 
-        # for i in range(0, len(AppCss), 1):
-           # if AppCss[i].text == PlatformName:
-
-
+        for i in PlatformCss:
+            if PlatformCss[i].text == PlatformName:
+                PlatformCss[i].click()
 
         time.sleep(5)
 
@@ -150,7 +145,6 @@ class GithubLogin(unittest.TestCase):
 
         self.driver.find_element_by_css_selector(".crashlytics i").click()
         time.sleep(5)
-
 
     def EnterVserion(self,Version):
         print("你選擇的版本:")
@@ -162,8 +156,6 @@ class GithubLogin(unittest.TestCase):
             VersionCheck[0].click()
             self.driver.find_element_by_class_name('Select-control').send_keys(Version[i] + '\n')
             time.sleep(3)
-
-
 
     def ClearSelectIcon(self):
         try:
@@ -259,6 +251,7 @@ class GithubLogin(unittest.TestCase):
             VersionTitle.append("Version")
         print("結束-->讀取Version")
         print("*"*10)
+
     def ReadIssueNumber(self):
         # Issue 數字
         print("開始-->讀取Issue編號")
@@ -268,6 +261,7 @@ class GithubLogin(unittest.TestCase):
             IssueNumberTitle.append("IssueNumber")
         print("結束-->讀取Issue編號")
         print("*"*10)
+
     def ReadIssueTitle(self):
         # Issue 開頭
         print("開始-->讀取Issue開頭")
@@ -277,6 +271,7 @@ class GithubLogin(unittest.TestCase):
             IssueTitleTitle.append("IssueTitle")
         print("結束-->讀取Issue開頭")
         print("*"*10)
+
     def ReadIssueSubtitle(self):
         # Issue 大綱
         print("開始-->讀取Issue大綱")
@@ -286,6 +281,7 @@ class GithubLogin(unittest.TestCase):
             IssueSubtitleTitle.append("IssueSubtitle")
         print("結束-->讀取Issue大綱")
         print("*"*10)
+
     def ReadAllNumber(self):
         IssueAllNumber = len(IssueSubtitle)
         x = 1
@@ -307,6 +303,7 @@ class GithubLogin(unittest.TestCase):
                 RecentActivityVersion.append(i.text)
                 RecentActivityVersionTitle.append('Version')
             x += 1
+
     def ListToJsonFile(self, FileName):
 
         print("開始-->將資料轉成Json")
@@ -397,7 +394,6 @@ class GithubLogin(unittest.TestCase):
         print("*"*10)
         print("請查看" + FileName)
 
-
     def test_Read_Fabirc(self):
         print('Top build version query raw data')
 
@@ -465,7 +461,6 @@ class GithubLogin(unittest.TestCase):
         print("*" * 10)
         print("請查看" + 'Top_build_Fabric.json')
 
-
     def test_Carsh_Top(self):
         print('Get crash-free session only')
 
@@ -513,7 +508,6 @@ class GithubLogin(unittest.TestCase):
         # 查詢前幾版的崩潰狀況
         self.ListToJsonFile_Crash('Fabric.json')
 
-
     def GetGoodAdoptionUserNumber(self):
         print("你選擇的版本:")
         for i in range(len(SelectVersion)):
@@ -548,7 +542,6 @@ class GithubLogin(unittest.TestCase):
                 print("get user")
                 print(str(y.text))
 
-
     def GetGoodAdoptionURLfunction(self):
         GetGoodAdoptionURL = self.driver.find_elements_by_css_selector('.flex-1 .answers-link')
         TestList = []
@@ -560,9 +553,6 @@ class GithubLogin(unittest.TestCase):
             print("get href")
             print(i.get_attribute("href"))
 
-
-
-
     def DefaultValue(self):
         global RecentActivityOccurrencesA, RecentActivityVersionA, RecentActivityOccurrences, RecentActivityVersion, \
             RecentActivityDict, RecentActivity
@@ -572,7 +562,6 @@ class GithubLogin(unittest.TestCase):
         RecentActivityVersion = []
         RecentActivityDict = {}
         RecentActivity = []
-
 
     def tearDown(self):
         self.driver.quit()

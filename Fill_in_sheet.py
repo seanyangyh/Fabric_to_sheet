@@ -311,6 +311,8 @@ def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data
     multiple_batchUpdate_list = []
     for i in range(0, len(data['data']), 1):
         if i not in duplicate_list:
+            if data['data'][i]['Crash'] < 5 and User_Input.PlatformName == 'iOS':
+                continue
             ver = data['data'][i]['Version']
             if ver in User_Input.Top_build[0].split('\n'):
                 first_time_count += 1

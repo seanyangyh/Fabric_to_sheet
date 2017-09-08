@@ -323,7 +323,12 @@ def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data
                 crash_count = data['data'][i]['Crash'] + " / " + data['data'][i]['User']
                 title = data['data'][i]['IssueTitle']
                 sub_title = data['data'][i]['IssueSubtitle']
-                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
+                try:
+                    h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
+                except:
+                    print('There is no RecentActivity in ' + num + '.')
+                    h_occurrences = 'None'
+                    h_crash_rate_percent = 'None'
                 multiple_batchUpdate_list.append(sheet_all_append_handler_row_data(num, ver, url, crash_count, title, sub_title, h_crash_rate_percent, h_occurrences))
 
     if multiple_batchUpdate_list !=[]:
@@ -352,7 +357,13 @@ def fabric_crashlytics_slope_criteria_uploader(tf_today, today, duplicate_list, 
     multiple_batchUpdate_list = []
     for i in range(0, len(data['data']), 1):
         if i not in duplicate_list and int(data['data'][i]['Crash'].replace('k', '000')) >= User_Input.Criteria_count:
-            h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
+            try:
+                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][i]['RecentActivity'], crash_rate_data)
+            except:
+                print('There is no RecentActivity in ' + data['data'][i]['IssueNumber'] + '.')
+                h_occurrences = 'None'
+                h_crash_rate_percent = 'None'
+                h_crash_rate = ['']
             h_slope = history_crash_rate_slope_calculator(h_crash_rate)
             print(h_slope)
             if h_slope >= User_Input.Slope:

@@ -150,7 +150,12 @@ def fabric_crashlytics_modifier(column_a_data, crash_rate_data, data, spreadshee
             if column_a_data['values'][i][0] == data['data'][j]['IssueNumber']:
                 ver = data['data'][j]['Version']
                 crash_count = data['data'][j]['Crash'] + " / " + data['data'][j]['User']
-                h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][j]['RecentActivity'], crash_rate_data)
+                try:
+                    h_occurrences, h_crash_rate_percent, h_crash_rate = history_occurrences_catcher(data['data'][j]['RecentActivity'], crash_rate_data)
+                except:
+                    print('There is no RecentActivity in' + data['data'][j]['IssueNumber'] + '.')
+                    h_occurrences = 'None'
+                    h_crash_rate_percent = 'None'
                 multiple_batchUpdate_list.append(sheet_all_modify_row_data(ver, crash_count, h_crash_rate_percent, h_occurrences, str(i+1)))
                 temp_duplicate_list.append(j)
 

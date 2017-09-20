@@ -19,20 +19,22 @@ import User_Input
 from collections import defaultdict
 from pyvirtualdisplay import Display
 
-fabirc_user = os.getenv('FABRICUSER')
-fabirc_password = os.getenv('FABRICPASSWORD')
+fabric_user = os.getenv('FABRICUSER')
+fabric_password = os.getenv('FABRICPASSWORD')
 
+# 將Android或iOS使用到的參數決定好
 if User_Input.PlatformName == 'iOS':
-    pgk = os.getenv('PGPKG_iOS')
-    UserURL = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
-    UserURLAll = "https://www.fabric.io/conew4/ios/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
+    FabricUrlHead = "https://www.fabric.io/conew4/ios/apps/" + os.getenv('PGPKG_iOS')
 elif User_Input.PlatformName == 'Android':
-    pgk = os.getenv('PGPKG')
-    UserURL = "https://www.fabric.io/photogrid/android/apps/" + pgk + "/dashboard/latest_release/launch_status?build="
-    UserURLAll = "https://www.fabric.io/photogrid/android/apps/" + pgk + "/dashboard/latest_release/launch_status?build=all"
+    FabricUrlHead = "https://www.fabric.io/photogrid/android/apps/" + os.getenv('PGPKG')
 
-github_account = fabirc_user
-github_passwd = fabirc_password
+UserURL = FabricUrlHead + "/dashboard/latest_release/launch_status?build="
+UserURLAll = FabricUrlHead + "/dashboard/latest_release/launch_status?build=all"
+FabricCrashlyticsUrl = FabricUrlHead + "/issues?time=last-ninety-days&event_type=all&subFilter=state&state=all&"
+
+# Fabric登入帳號密碼
+github_account = fabric_user
+github_passwd = fabric_password
 print('MarkTest ' + github_account)
 
 '''原始存放的資料'''
@@ -83,8 +85,6 @@ SelectVersion = User_Input.Version
 PlatformName = User_Input.PlatformName
 
 
-
-
 RecentActivityVersion = []
 RecentActivityVersionTitle = []
 RecentActivityOccurrences = []
@@ -96,8 +96,6 @@ RecentActivityVersionA = []
 
 RecentActivity = []
 RecentActivityDict = {}
-
-
 
 
 GetGoodAdoptionURLTest = []
@@ -165,11 +163,20 @@ class GithubLogin(unittest.TestCase):
     def ClearSelectIcon(self):
         try:
             # 清掉預設值
-            self.driver.find_element_by_class_name('Select-value-icon').click()
+            self.driver.save_screenshot('Mark_ClearSelectIcon.png')
+            self.driver.find_element_by_css_selector('.Select .Select-control .Select-value .Select-value-icon').click()
             time.sleep(5)
         except:
             self.driver.save_screenshot("Sean.png")
             raise
+
+    def UrlDirectGetCrashDetail(self, Version):
+        if Version == "All":
+            CrashlyticsData = FabricCrashlyticsUrl + "showAllBuilds=true"
+        else:
+            CrashlyticsData = FabricCrashlyticsUrl + "build[0]=" + Version
+
+        return CrashlyticsData
 
     def SelectAll(self):
         # ClickAll = self.driver.find_elements_by_css_selector("#state-group-all")
@@ -399,7 +406,7 @@ class GithubLogin(unittest.TestCase):
         print("*"*10)
         print("請查看" + FileName)
 
-    def test_Read_Fabirc(self):
+    def test_Read_Fabric(self):
         print('Top build version query raw data')
 
         driver = self.driver
@@ -477,24 +484,28 @@ class GithubLogin(unittest.TestCase):
         driver.find_element_by_id("password").clear()
         driver.find_element_by_id("password").send_keys(github_passwd)
         driver.find_element_by_class_name("sign-in").click()
-        driver.save_screenshot('Mark.png')
+        driver.save_screenshot('Mark_login.png')
         time.sleep(5)
-        self.Platform(PlatformName)  # Sean
-        self.ClickCarshlytics()
+        # self.Platform(PlatformName)  # Sean
+        # self.ClickCarshlytics()
 
         for i in range(len(SelectVersion)):
-            SelectVersionA.append(SelectVersion[i])
+            # SelectVersionA.append(SelectVersion[i])
 
-            self.EnterVserion(SelectVersionA)  # Sean
-            self.ClearSelectIcon()
+            # self.EnterVserion(SelectVersionA)  # Sean
+            # self.ClearSelectIcon() # old method
+            self.driver.get(self.UrlDirectGetCrashDetail(SelectVersion[i]))  # new method
+            time.sleep(5)
             self.ReadAllUserSessions()
             # self.GetGoodAdoptionURLfunction()
 
-            SelectVersionA.pop()
+            # SelectVersionA.pop()
 
-            # 讀取 All Verison
+        # 讀取 All Verison
         print("你選擇的版本:\nAll Version")
-        self.ClearSelectIcon()
+        # self.ClearSelectIcon() # old method
+        self.driver.get(self.UrlDirectGetCrashDetail("All"))  # new method
+        time.sleep(5)
         self.ReadAllUserSessions()
         # GetUserNumberTest.append("Null")
         self.GetGoodAdoptionUserNumber()
@@ -521,8 +532,6 @@ class GithubLogin(unittest.TestCase):
         for i in range(len(SelectVersion)):
             self.driver.get(UserURL + SelectVersion[i])
             time.sleep(5)
-
-
 
             GetUserNumber = self.driver.find_elements_by_css_selector(".coverage-section .flex-1 .flex-1 .large")
             print('GetUserNumber : ' + str(GetUserNumber))

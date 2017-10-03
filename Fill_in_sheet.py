@@ -522,34 +522,38 @@ def main():
     crashlytics_dict = json_parser(raw_data_crashlytics)
     print(crashlytics_dict)
 
-    # get column A data, prepare for checking today exist/column A and json comparison via modifier
-    column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
-    sleep(1)
-    print(column_a_data)
-    # upload detail crash data to All sheet
-    is_today = is_today_exist_checker(today, column_a_data)
-    duplicated_list = fabric_crashlytics_modifier(column_a_data, crash_rate_dict, crashlytics_dict, spreadsheet_id, service)
-    fabric_crashlytics_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
+    if crashlytics_dict == {}:
+        # if Top_build_Fabric.json has no data for analysis, just bypass and finish
+        pass
+    else:
+        # get column A data, prepare for checking today exist/column A and json comparison via modifier
+        column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
+        sleep(1)
+        print(column_a_data)
+        # upload detail crash data to All sheet
+        is_today = is_today_exist_checker(today, column_a_data)
+        duplicated_list = fabric_crashlytics_modifier(column_a_data, crash_rate_dict, crashlytics_dict, spreadsheet_id, service)
+        fabric_crashlytics_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
 
-    # get column A data again for checking today exist in column A or not
-    column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
-    sleep(1)
-    print(column_a_data)
-    is_today = is_today_exist_checker(today, column_a_data)
-    # upload slope method crash data to All sheet
-    fabric_crashlytics_slope_criteria_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
+        # get column A data again for checking today exist in column A or not
+        column_a_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_a).execute()
+        sleep(1)
+        print(column_a_data)
+        is_today = is_today_exist_checker(today, column_a_data)
+        # upload slope method crash data to All sheet
+        fabric_crashlytics_slope_criteria_uploader(is_today, today, duplicated_list, crash_rate_dict, crashlytics_dict, spreadsheet_id, range_all, service)
 
-    # get Summary sheet column D data to find crash rate above 0.3% and mark as red
-    summary_column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_summary_column_d).execute()
-    sleep(1)
-    print(summary_column_d_data)
-    crash_rate_warning_handler(summary_column_d_data['values'], spreadsheet_id, service)
+        # get Summary sheet column D data to find crash rate above 0.3% and mark as red
+        summary_column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_summary_column_d).execute()
+        sleep(1)
+        print(summary_column_d_data)
+        crash_rate_warning_handler(summary_column_d_data['values'], spreadsheet_id, service)
 
-    # get All sheet column D data to find crash count above 100 and mark as red
-    column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_d + "2:D").execute()
-    sleep(1)
-    print(column_d_data)
-    fabric_warning_handler(column_d_data['values'], spreadsheet_id, service)
+        # get All sheet column D data to find crash count above 100 and mark as red
+        column_d_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_d + "2:D").execute()
+        sleep(1)
+        print(column_d_data)
+        fabric_warning_handler(column_d_data['values'], spreadsheet_id, service)
 
 
 if __name__ == '__main__':

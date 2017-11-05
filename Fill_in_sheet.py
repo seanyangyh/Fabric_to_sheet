@@ -178,6 +178,9 @@ def is_today_exist_checker(today, sheet_range):
 
 
 def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
+    # pythonDictionary = {'bold': True}
+    # dictionaryToJson = json.dumps(pythonDictionary)
+
     batch_update_spreadsheet_request_color = {
         "requests": [
             {
@@ -195,10 +198,12 @@ def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
                                 "red": 1,
                                 "green": 1,
                                 "blue": 0
-                            }
+                            },
+                            "horizontalAlignment": "LEFT",
+                            "textFormat": "true"
                         }
                     },
-                    "fields": "userEnteredFormat(backgroundColor)"
+                    "fields": "userEnteredFormat(backgroundColor, textFormat, horizontalAlignment)"
                 }
             },
             {
@@ -345,7 +350,7 @@ def fabric_crashlytics_uploader(tf_today, today, duplicate_list, crash_rate_data
 
 def history_crash_rate_slope_calculator(crash_rate_data):
     crash_rate_data_filtered = [i for i in crash_rate_data if 'dau=0' not in i]
-    if len(crash_rate_data_filtered) == 0 or 1:
+    if len(crash_rate_data_filtered) == 0 or len(crash_rate_data_filtered) == 1:
         return 1
     else:
         temp_slope_list = []
@@ -446,8 +451,8 @@ def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
         if not crash_rate == []:
             temp = crash_rate[0]
             crash_rate_value = temp.rstrip('%')
-            sheet_id = User_Input.sheet_id_summary
             if float(crash_rate_value) <= 99.7:
+                sheet_id = User_Input.sheet_id_summary
                 multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
     if multiple_batchUpdate_list != []:
@@ -460,7 +465,7 @@ def crash_rate_warning_handler(column_d_data, spreadsheet_id, service):
 def fabric_warning_handler(column_d_data, spreadsheet_id, service):
     multiple_batchUpdate_list = []
     start_row = 0
-    end_row = 999
+    end_row = 9999
     start_column = 0
     end_column = 12
     sheet_id = User_Input.sheet_id_all
@@ -472,15 +477,41 @@ def fabric_warning_handler(column_d_data, spreadsheet_id, service):
         if not crash_user == []:
             temp = crash_user[0]
             crash_count = temp.strip().split(" / ")
-            sheet_id = User_Input.sheet_id_all
             if int(crash_count[0].replace('k', '000')) >= 100:
+                sheet_id = User_Input.sheet_id_all
                 multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0, 0, sheet_id))
 
     if multiple_batchUpdate_list != []:
         update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
         print(update_text_color)
     else:
-        print('There is no crash count > 100 case.')
+        print('There is no crash count >= 100 case.')
+
+
+def fabric_slope_warning_handler(column_k_data, spreadsheet_id, service):
+    multiple_batchUpdate_list = []
+    start_column = 0
+    end_column = 12
+    for i in range(0, len(column_k_data), 1):
+        ver_crash_rate = column_k_data[i]
+        if not ver_crash_rate == []:
+            if not ver_crash_rate[0] == 'None':
+                crash_rate = ver_crash_rate[0].split(" : ")
+                temp = crash_rate[1].replace('%', '')
+                h_crash_rate = temp.split(", ")
+                for j in range(0, len(h_crash_rate), 1):
+                    if h_crash_rate[j] == '0.00':
+                        h_crash_rate[j] = '0.01'
+                h_slope = history_crash_rate_slope_calculator(h_crash_rate)
+                if h_slope >= 1.2:
+                    sheet_id = User_Input.sheet_id_all
+                    multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0.5, 0, sheet_id))
+
+    if multiple_batchUpdate_list != []:
+        update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
+        print(update_text_color)
+    else:
+        print('There is no crash rate slope >= 1.2 case.')
 
 
 def main():
@@ -501,6 +532,7 @@ def main():
     range_all = 'All!A2:L'
     range_all_column_a = 'All!A:A'
     range_all_column_d = 'All!D'
+    range_all_column_k = 'All!K'
     range_summary = 'Summary!A2:E'
     range_summary_column_d = 'Summary!D2:D'
 
@@ -554,6 +586,12 @@ def main():
         sleep(1)
         print(column_d_data)
         fabric_warning_handler(column_d_data['values'], spreadsheet_id, service)
+
+        # get All sheet column K data to find crash rate slope above 1.2 and mark as orange
+        column_k_data = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_all_column_k + "2:K").execute()
+        sleep(1)
+        print(column_k_data)
+        fabric_slope_warning_handler(column_k_data['values'], spreadsheet_id, service)
 
 
 if __name__ == '__main__':

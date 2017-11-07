@@ -200,7 +200,9 @@ def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
                                 "blue": 0
                             },
                             "horizontalAlignment": "LEFT",
-                            "textFormat": "true"
+                            "textFormat": {
+                                "bold": "true"
+                            }
                         }
                     },
                     "fields": "userEnteredFormat(backgroundColor, textFormat, horizontalAlignment)"
@@ -221,7 +223,7 @@ def sheet_all_fill_color_and_merge(row, spreadsheet_id, service):
         ]
     }
     result = service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id,
-                                                 body=batch_update_spreadsheet_request_color).execute()
+                                                body=batch_update_spreadsheet_request_color).execute()
     sleep(1)
     return result
 

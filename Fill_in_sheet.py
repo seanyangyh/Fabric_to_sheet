@@ -505,7 +505,7 @@ def fabric_slope_warning_handler(column_k_data, spreadsheet_id, service):
                     if h_crash_rate[j] == '0.00':
                         h_crash_rate[j] = '0.01'
                 h_slope = history_crash_rate_slope_calculator(h_crash_rate)
-                if h_slope >= 1.2:
+                if h_slope >= User_Input.Slope:
                     sheet_id = User_Input.sheet_id_all
                     multiple_batchUpdate_list.append(sheet_update_text_color_row_data(i+1, i+2, start_column, end_column, 1, 0.5, 0, sheet_id))
 
@@ -513,7 +513,7 @@ def fabric_slope_warning_handler(column_k_data, spreadsheet_id, service):
         update_text_color = sheet_update_text_color(multiple_batchUpdate_list, spreadsheet_id, service)
         print(update_text_color)
     else:
-        print('There is no crash rate slope >= 1.2 case.')
+        print('There is no crash rate slope >= ' + User_Input.Slope + ' case.')
 
 
 def main():

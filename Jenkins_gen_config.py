@@ -21,6 +21,7 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from oauth2client.service_account import ServiceAccountCredentials
 
 try:
     import argparse
@@ -148,7 +149,8 @@ def get_parameter(para):
     sheet_id_summary = '362639746'
 
     # Oauth Credential from client_secret.json
-    credentials = get_credentials()
+    # credentials = get_credentials()
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('FabricParser-8be73c6c3ce6.json', SCOPES)
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
